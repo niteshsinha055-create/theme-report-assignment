@@ -163,7 +163,7 @@ test.describe('Theme update reflected in Report Module', () => {
 
       await test.step('View menu (portal-rendered popover)', async () => {
         await reportPage.openViewMenu();
-        const firstOption = reportPage.openMenu.getByRole('menuitem').first();
+        const firstOption = reportPage.viewMenuOption;
         await measure({ 'view menu option': firstOption });
         await reportPage.closeMenu();
       });

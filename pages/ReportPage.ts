@@ -20,7 +20,8 @@ export class ReportPage extends BasePage {
   }
 
   get tableBodyCell(): Locator {
-    return this.table.getByRole('cell').nth(1);
+    // The grid is two <table>s (sticky header, then body), so the first table has no body cells.
+    return this.page.getByRole('table').getByRole('cell').nth(1);
   }
 
   get newUserButton(): Locator {
@@ -54,9 +55,17 @@ export class ReportPage extends BasePage {
     return this.filterDialog.getByRole('button', { name: /add condition/i });
   }
 
-  /** Popover menu rendered in a portal under <body>. */
+  /**
+   * The View menu is a bare MuiPaper appended directly to <body> (no MuiPopover/MuiMenu root,
+   * no role="menu"), so it is located as that body-level paper.
+   */
   get openMenu(): Locator {
-    return this.page.locator('.MuiPopover-root .MuiPaper-root, .MuiMenu-root .MuiPaper-root').first();
+    return this.page.locator('body > .MuiPaper-root').first();
+  }
+
+  /** Menu rows are div[role="button"] with class "view-row", not role="menuitem". */
+  get viewMenuOption(): Locator {
+    return this.openMenu.locator('.view-row').first();
   }
 
   async waitForReady(): Promise<void> {
@@ -113,8 +122,9 @@ export class ReportPage extends BasePage {
     await expect(this.openMenu, 'View menu did not open').toBeVisible();
   }
 
+  /** Escape does not close the View menu (same keyboard gap as the filter dialog); toggle it via its button. */
   async closeMenu(): Promise<void> {
-    await this.page.keyboard.press('Escape');
+    await this.viewButton.click();
     await expect(this.openMenu).toBeHidden();
   }
 }
